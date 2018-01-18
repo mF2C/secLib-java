@@ -16,9 +16,13 @@
 package eu.mf2c.security.comm.util;
 
 /**
- * An {@java.lang.Enum Enum} of GDPR &#40;General Data Protection Regulation&#41; 
- * related data privacy categories. Based on a prototype developed by Cheney Ketley. 
- * <p> 
+ * An {@link java.lang.Enum Enum <em>Enum<em>} of security level supported.
+ * <ul>
+ * <li>PUBLIC &#58; Public data, no special protection required</li>
+ * <li>PROTECTED &#58;  Data that are not secret but needs integrity protection</li>
+ * <li>PRIVATE &#58; Personal or sensitive data that requires special protection.</li>
+ * </ul>
+ * <p>
  * @author Shirley Crompton
  * @email  shirley.crompton@stfc.ac.uk
  * @org Data Science and Technology Group,
@@ -26,15 +30,13 @@ package eu.mf2c.security.comm.util;
  * @Created 9 Jan 2018
  *
  */
-public enum Privacy {
-	
-	/** GDRP applicable to data*/
-	GDPR,
-	/** GDPR not applicable to data */
-	NOT_GDPR,
-	/** Data not personal sensitive */
-	NOTPII;
-	/** Data privacy requirement unknown */
-	//UNKNOWN;
+public enum Security {
+	//NONE,
+	/** for data which needs no special protection */
+	PUBLIC,
+	/** for data which is not secret but needs integrity protection */
+    PROTECTED,
+    /** for personal or sensitive data */
+    PRIVATE;
 
 }

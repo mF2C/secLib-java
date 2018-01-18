@@ -13,13 +13,16 @@
    See the License for the specific language governing permissions and
    limitations under the License 
  */
-package eu.mf2c.security.comm;
-
+package eu.mf2c.security.comm.util;
 
 /**
- * This Class implements the {@link Channelable} interface to
- * support the secure communication of data and control messages
- * via various communication protocols. 
+ * An {@link java.lang.Enum Enum <em>Enum<em>} of message delivery quality of 
+ * service.
+ * <ul>
+ * <li>ATMOSTONCE &#58; message delivered at most once.</li>
+ * <li>ATMOSTONCE &#58; message delivered at least once.</li>
+ * <li>ATMOSTONCE &#58; message delivered exactly once.</li>
+ * </ul>
  * <p>
  * @author Shirley Crompton
  * @email  shirley.crompton@stfc.ac.uk
@@ -28,32 +31,13 @@ package eu.mf2c.security.comm;
  * @Created 9 Jan 2018
  *
  */
-public class Channel implements Channelable {
-
-	/* (non-Javadoc)
-	 * @see eu.mf2c.security.comms.iChannelable#send()
-	 */
-	@Override
-	public void send() {
-		// TODO Auto-generated method stub
-
-	}
-
-	/* (non-Javadoc)
-	 * @see eu.mf2c.security.comms.iChannelable#flush()
-	 */
-	@Override
-	public void flush() {
-		// TODO Auto-generated method stub
-
-	}
-
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
-	}
-
+public enum QoS {
+	/** Message to be sent at most once.  Use this flag for asynchronous communication */
+	ATMOSTONCE,
+	/** Message to be sent at least once */
+    ATLEASTONCE,
+    /** Message to be sent exactly once */
+    EXACTLYONCE;
+    /** QoS not defined 
+    UNDEFINED ;*/
 }

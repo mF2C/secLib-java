@@ -16,8 +16,9 @@
 package eu.mf2c.security.comm.util;
 
 /**
- * An {@java.lang.Enum Enum} of communication protocols applicable in mF2C.
+ * An {@link java.lang.Enum Enum <em>Enum<em>} of communication protocols supported in mF2C.
  * Based on the prototype created by Cheney Ketley.
+ * In Iteration 1, mF2C only supports MQTT, HTTP and BLE.
  * <p>
  * @author Shirley Crompton
  * @email  shirley.crompton@stfc.ac.uk
@@ -152,7 +153,7 @@ public enum Protocol {
     BRIDGE,
     /** Internet Protocol communication */ 
     IP_ONLY;
-    /** None */
-    //NONE;	
+    /** None 
+    NONE;	*/
 	
 }

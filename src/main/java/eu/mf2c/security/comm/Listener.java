@@ -16,20 +16,16 @@
 package eu.mf2c.security.comm;
 
 /**
- * mF2C secure communication API for establishing secure
- * control and data communication via various communication
- * protocols &#40;Iteration 1 suports MQTT, HTTP, BLE only.&#41;  
- * <p>
+ * The Listener listens to incoming messages and enqueue them. 
+ * If it subscribes to the <i>ping</i> topic, the {@link Channel <em>Channel</em>}
+ * needs to response to the pings.
  * @author Shirley Crompton
  * @email  shirley.crompton@stfc.ac.uk
  * @org Data Science and Technology Group,
  *      UKRI Science and Technology Council
- * @Created 9 Jan 2018
+ * @Created 16 Jan 2018
  *
  */
-public interface Channelable {
-	
-	public void send();
-	public void flush();
+public class Listener {
 
 }

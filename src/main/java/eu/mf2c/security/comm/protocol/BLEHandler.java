@@ -13,31 +13,16 @@
    See the License for the specific language governing permissions and
    limitations under the License 
  */
-package eu.mf2c.security.comm.util;
+package eu.mf2c.security.comm.protocol;
 
 /**
- * An {@java.lang.Enum Enum} of communication quality of 
- * service governing the message delivery.
- * <ul>
- * <li>ATMOSTONCE &#58; message delivered at most once.</li>
- * <li>ATMOSTONCE &#58; message delivered at least once.</li>
- * <li>ATMOSTONCE &#58; message delivered exactly once.</li>
- * </ul>
- * <p>
  * @author Shirley Crompton
  * @email  shirley.crompton@stfc.ac.uk
  * @org Data Science and Technology Group,
  *      UKRI Science and Technology Council
- * @Created 9 Jan 2018
+ * @Created 16 Jan 2018
  *
  */
-public enum QoS {
-	/** Message to be sent at most once */
-	ATMOSTONCE,
-	/** Message to be sent at least once */
-    ATLEASTONCE,
-    /** Message to be sent exactly once */
-    EXACTLYONCE;
-    /** QoS not defined */
-    //UNDEFINED ;
+public class BLEHandler extends ProtocolHandler {
+
 }

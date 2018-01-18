@@ -13,29 +13,29 @@
    See the License for the specific language governing permissions and
    limitations under the License 
  */
-package eu.mf2c.security.data;
+package eu.mf2c.security.comm;
 
 /**
- * Identity of the client associated with the {@link Channel}.
- * The 
- * <p>  
+ * Protocol ping service 
+ * <p>
  * @author Shirley Crompton
  * @email  shirley.crompton@stfc.ac.uk
  * @org Data Science and Technology Group,
  *      UKRI Science and Technology Council
- * @Created 9 Jan 2018
+ * @Created 16 Jan 2018
  *
  */
-public class Identity {
-	/**
-	 * Constant instance of {@link Identity} which is thread safe.
-	 */
-	public final static Identity INSTANCE = new Identity();
-	/**
-	 * Private constructor.
-	 */
-	private Identity(){
-		//TBD
-		//may need to use NDP
+public class PingService {
+
+	public int ping(){
+		
+		return 0;
+		
 	}
+	
+	public int respond(){
+		
+		return 0;
+	}
+	
 }

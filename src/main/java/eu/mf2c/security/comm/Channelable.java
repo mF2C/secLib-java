@@ -13,15 +13,16 @@
    See the License for the specific language governing permissions and
    limitations under the License 
  */
-package eu.mf2c.security.comm.util;
+package eu.mf2c.security.comm;
+
+import java.util.List;
+
+import eu.mf2c.security.data.Message;
 
 /**
- * An {@java.lang.Enum Enum} of security level supported.
- * <ul>
- * <li>PUBLIC &#58; No protection required</li>
- * <li>PROTECTED &#58; </li>
- * <li>PRIVATE &#58;</li>
- * </ul>
+ * mF2C secure communication API for establishing secure
+ * control and data communication via various communication
+ * protocols &#40;Iteration 1 suports MQTT, HTTP, BLE only.&#41;  
  * <p>
  * @author Shirley Crompton
  * @email  shirley.crompton@stfc.ac.uk
@@ -30,10 +31,19 @@ package eu.mf2c.security.comm.util;
  * @Created 9 Jan 2018
  *
  */
-public enum Security {
-	//NONE,
-	PUBLIC,
-    PROTECTED,
-    PRIVATE;
+public interface Channelable {
+	
+	/** send a message */
+	public void send(Message message, List<Enum> flags);
+	
+	/** flush the message buffers */
+	public void flush();
+	
+	/** 
+	 * terminate channel and tidy up, this includes
+	 * flushes all buffers, closes all live connections 
+	 * gracefully. 
+	 */
+	public void destruct();
 
 }
