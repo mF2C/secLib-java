@@ -15,6 +15,9 @@
  */
 package eu.mf2c.security.comm.protocol;
 
+import eu.mf2c.security.comm.protocol.ble.BleHandler;
+import eu.mf2c.security.comm.protocol.http.HttpHandler;
+import eu.mf2c.security.comm.protocol.mqtt3.Mqtt3Handler;
 import eu.mf2c.security.comm.util.Protocol;
 import eu.mf2c.security.exception.ProtocolHandlerException;
 
@@ -29,25 +32,25 @@ import eu.mf2c.security.exception.ProtocolHandlerException;
  * @Created 18 Jan 2018
  *
  */
-public class ProtocolHandlerFactory {
+public class ProtocolHandlers {
 	/**
 	 * @param protocol	The {@link Protocol <em>Protocol</em>} requirement for determining which
 	 *                  concrete {@link ProtocolHandler <em>ProtocolHandler</em>} subclass to instantiate.
 	 * @return 			The appropriate instance of {@link ProtocolHandler <em>ProtocolHandler</em>}
 	 * @throws ProtocolHandlerException		If the protocol is not supported.
 	 */
-	public static ProtocolHandler getProtocolHandler(Protocol protocol) throws ProtocolHandlerException{		
+	public static ProtocolHandler newProtocolHandler(Protocol protocol) throws ProtocolHandlerException{		
 		//determine which type of handler to instantiate		
 		try{
 			switch(protocol){
-				case BLE: return new BLEHandler();
-				case MQTT: return new MQTTHandler();
-				case HTTP: return new HTTPHandler();
+				case BLE: return new BleHandler();
+				case MQTT: return new Mqtt3Handler();
+				case HTTP: return new HttpHandler(); 
 				//18Jan2018 only supports BLE, MQTT and HTTP in iteration 1
 				default: throw new ProtocolHandlerException("Unsupported protocol: " + protocol);  	
 				//ideally we should use a separate ProtocolHandlerFactoryException, but we want to have a compact application.
 			}
-		}catch(Exception ex){
+		}catch(Exception ex){  //in case there are errors instantiating the handler
 			//delegate error logging to the caller
 			throw new ProtocolHandlerException("Error instantiating protocolHandler for " + protocol);
 		}

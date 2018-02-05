@@ -16,13 +16,18 @@
 package eu.mf2c.security.comm;
 
 import java.util.List;
+import java.util.Timer;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.log4j.Logger;
 
 import eu.mf2c.security.comm.protocol.ProtocolHandler;
+import eu.mf2c.security.comm.protocol.ProtocolHandlers;
+import eu.mf2c.security.comm.protocol.ProtocolHandlers;
 import eu.mf2c.security.comm.util.Protocol;
 import eu.mf2c.security.data.Identity;
 import eu.mf2c.security.data.Message;
+import eu.mf2c.security.data.ReceivedMessage;
 import eu.mf2c.security.exception.ChannelException;
 
 
@@ -58,11 +63,16 @@ public class Channel implements Channelable {
 	protected String friendyName;
 	/** Identity attribute, this is a Singleton */
 	protected Identity identity;
+	/** The incoming messages buffer, excludes ping requests and acknowledgements */
+	//!!!!may need to block until something is in the buffer, not sure that it should be here!!!!
+	//protected ConcurrentLinkedQueue<ReceivedMessage> receivedBuffer = new ConcurrentLinkedQueue<ReceivedMessage>(); 
 	
 	/** Listener attribute */
-	protected Listener listener;
+	protected Listener listener; //needs threading
+	/** Ping service attribute */
+	protected PingService pingService; //needs threading
 	/** Sender attribute */
-	protected Sender sender;
+	//protected Sender sender;
 	/** ProtocolHandler attribute */
 	protected ProtocolHandler handler;
 	
@@ -82,13 +92,14 @@ public class Channel implements Channelable {
 		//this.transport = transport;
 		this.friendyName = friendyName;
 		try{
-			this.initChannel(destination, transport);
-			
-			//!!!!bootstrap the identity... this is passed to the protocolHandler on instantiation
+			//bootstrap the identity... this is passed to the protocolHandler on instantiation
 			this.identity = Identity.getInstance();
-			
-			
-			
+			//this creates the correct protocol client
+			this.initChannel(destination, transport);
+			//this creates the Listener object
+			this.listener = createListener(this.handler);
+			//
+			//this.pingService = newPingService(this.listener);
 		}catch(Exception e){
 			LOGGER.error("Failed to instantiate channel with friendy name(" + this.friendyName + "): " + e.getMessage()) ;
 			throw new ChannelException(e.getCause());
@@ -96,22 +107,60 @@ public class Channel implements Channelable {
 				
 	}
 	/** 
-	 * initialise the Channel
+	 * initialise the Channel and set up the required {@link ProtocolHandler <em>ProtocolHandler</em>}
 	 * <p>
 	 * @param destination  {@link java.lang.String <em>String</em> representation of the communication destination
 	 * @param transport    {@link Protocol <em>Protocol</em>} flag
 	 */
 	private void initChannel(String destination, Protocol transport) throws Exception{
 		
-		//TODO
+		//create the handler
+		this.handler = ProtocolHandlers.newProtocolHandler(transport);
+		//initiaise it
+		//this.handler.setMessageBuffer(this.receivedBuffer);
+		
+		
 		
 		
 		
 		
 	}
+	
+	private Listener createListener(ProtocolHandler handler){
+		//we create the Listener here and start the thread
+		
+		return null;
+	}
+	
+	private void startPingService(){
+		LOGGER.debug("About to start ping service in a thread ....");
+		//
+		this.pingService = new PingService(30); //try every 30 seconds as the ping interval, could make this configurable
+		Thread pingServiceThread = new Thread(this.pingService);
+		pingServiceThread.start();
+		
+	}
+	/**
+	 * Stop the {@link PingService <em>PingService</em>} thread by
+	 * setting its keepRunning flag to false.
+	 */
+	private void stopPingService(){
+		LOGGER.debug("About to stop ping service ....");
+		//
+		this.pingService.setKeepRunning(false);
+	}
+	
+	
+	
 	@Override
 	public void send(Message message, List<Enum> flags) {
-		// TODO Auto-generated method stub
+		// TODO 
+		//build the header, unicode input
+		//first send Channel header to headshake
+		//then send the message
+		
+		
+		
 		
 	}
 	@Override
@@ -129,6 +178,20 @@ public class Channel implements Channelable {
 		
 		
 	}
+	@Override
+	public boolean poll() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	@Override
+	public ReceivedMessage pop() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	private void getListener(){
+		
+	}
 	
 
 	
@@ -139,5 +202,6 @@ public class Channel implements Channelable {
 		// TODO Auto-generated method stub
 
 	}
+	
 
 }

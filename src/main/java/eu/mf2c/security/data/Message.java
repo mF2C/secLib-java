@@ -15,6 +15,9 @@
  */
 package eu.mf2c.security.data;
 
+import java.security.Timestamp;
+import java.util.List;
+
 import org.apache.log4j.Logger;
 
 import com.eclipsesource.json.JsonObject;
@@ -59,6 +62,22 @@ import eu.mf2c.security.comm.Channel;
 public class Message {
 	/** logger attribute */
 	private final static Logger LOGGER = Logger.getLogger(Message.class.getName());
+	
+	protected boolean isIncoming = true; //default to incoming (received) message
+	
+	public List<Integer> flags;
+	
+	public String sender_id;
+	
+	public JsonObject message; //could be String 64 encoded
+	
+	public Timestamp time_sent;  //needs to check if type matches requirement
+	
+	public Timestamp time_received; //this is null it is a sent message
+	
+	
+	
+	
 	
 	public Message(JsonObject message){
 		//Dealing with a received message, decrypt the JsonObject into a message object

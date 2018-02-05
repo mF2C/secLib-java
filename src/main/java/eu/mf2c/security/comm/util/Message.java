@@ -13,16 +13,25 @@
    See the License for the specific language governing permissions and
    limitations under the License 
  */
-package eu.mf2c.security.comm.protocol;
+package eu.mf2c.security.comm.util;
 
 /**
+ *  An {@link java.lang.Enum Enum <em>Enum<em>} of incoming message types. 
+ * <p>
  * @author Shirley Crompton
  * @email  shirley.crompton@stfc.ac.uk
  * @org Data Science and Technology Group,
  *      UKRI Science and Technology Council
- * @Created 16 Jan 2018
+ * @Created 2 Feb 2018
  *
  */
-public class BLEHandler extends ProtocolHandler {
+public enum Message {
+	
+		/** Ping acknowledgement */
+		PINGACK,
+		/** Ping request */
+		PINGREQ,
+		/** Real message */
+		MSG;
 
 }

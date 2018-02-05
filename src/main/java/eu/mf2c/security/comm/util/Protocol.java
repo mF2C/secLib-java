@@ -35,94 +35,95 @@ public enum Protocol {
     /** Bluetooth Low Energy communication protocol */
     BLE,
     /** Bluetooth communication protocol */
+    /* these are not yet implemented
     B,
-    /** LORA communication protocol */
+    /** LORA communication protocol 
     LORA,
-    /** LORA Wide Area Network communication protocol */
+    /** LORA Wide Area Network communication protocol 
     LORAWAN,
-    /** COAP communication protocol */
+    /** COAP communication protocol 
     COAP,
-    /** ZIGBEE communication protocol */
+    /** ZIGBEE communication protocol 
     ZIGBEE,
-    /** SIGFOX communication protocol */
+    /** SIGFOX communication protocol 
     SIGFOX,
-    /** DDS communication protocol */
+    /** DDS communication protocol 
     DDS,
-    /** IPv6 Low-Power Wireless Personal Area Network communication protocol */
+    /** IPv6 Low-Power Wireless Personal Area Network communication protocol 
     SIXLOWPAN,
-    /** Threaded communication */
+    /** Threaded communication 
     THREAD,
-    /** HaLow communication protocol */
+    /** HaLow communication protocol 
     HALOW,
-    /** 2G mobile communication protocol */
+    /** 2G mobile communication protocol 
     TWO_G,
-    /** 3G mobile communication protocol */
+    /** 3G mobile communication protocol 
     THREE_G,
-    /** 4G mobile communication protocol */
+    /** 4G mobile communication protocol 
     FOUR_G,
-    /** LTE Category 0 communication protocol */
+    /** LTE Category 0 communication protocol 
     LTECAT0,
-    /** LTE Category 1 communication protocol */
+    /** LTE Category 1 communication protocol 
     LTECAT1,
-    /** LTE Category 3 communication protocol */
+    /** LTE Category 3 communication protocol 
     LTECAT3,
-    /** ZWAVE wireless communication protocol */
+    /** ZWAVE wireless communication protocol 
     ZWAVE,
-    /** LTE-M1 communication protocol */
+    /** LTE-M1 communication protocol 
     LTEM1,
-    /** NBIOT communication protocol */
+    /** NBIOT communication protocol 
     NBIOT,
-    /** Near Field communication protocol */
+    /** Near Field communication protocol 
     NFC,
-    /** Radio-frequency Identity communication protocol */
+    /** Radio-frequency Identity communication protocol 
     RFID,
-    /** DIGIMESH communication protocol */
+    /** DIGIMESH communication protocol 
     DIGIMESH,
-    /** INGENU communication protocol */
+    /** INGENU communication protocol 
     INGENU,
-    /** WEIGHTLESSN wireless communication protocol */
+    /** WEIGHTLESSN wireless communication protocol 
     WEIGHTLESSN,
-    /** WEIGHTLESSP wireless communication protocol */
+    /** WEIGHTLESSP wireless communication protocol 
     WEIGHTLESSP,
-    /** WEIGHTLESSW wireless communication protocol */
+    /** WEIGHTLESSW wireless communication protocol 
     WEIGHTLESSW,
-    /** ANT wireless communication protocol */
+    /** ANT wireless communication protocol 
     ANT,
-    /** ANTPLUS wireless communication protocol */
+    /** ANTPLUS wireless communication protocol 
     ANTPLUS,
-    /** MIWI communication protocol */
+    /** MIWI communication protocol 
     MIWI,
-    /** ENOCEAN communication protocol */
+    /** ENOCEAN communication protocol 
     ENOCEAN,
-    /** DASH7 communication protocol */
+    /** DASH7 communication protocol 
     DASH7,
-    /** WIERLESSHART communication protocol */
+    /** WIERLESSHART communication protocol 
     WIRELESSHART,
-    /** Remote Procedure Call protocol */
+    /** Remote Procedure Call protocol 
     RPC,
-    /** KAFKA messaging protocol */
+    /** KAFKA messaging protocol 
     KAFKA,
-    /** Java messaging Service protocol */
+    /** Java messaging Service protocol 
     JMS,
-    /** AMQP messaging protocol */
+    /** AMQP messaging protocol 
     AMQP,
-    /** Rabit MQ messaging protocol */
+    /** Rabit MQ messaging protocol 
     RABBITMQ,
-    /** ActiveMQ MQ messaging protocol */
+    /** ActiveMQ MQ messaging protocol 
     ACTIVEMQ,
-    /** ZeroMQ messaging protocol */
+    /** ZeroMQ messaging protocol 
     ZEROMQ,
-    /** ICE instant messaging protocol */
-    ICE,
-    /** Common Object Request Broker communication protocol */
+    /** ICE instant messaging protocol 
+    ICE
+    /** Common Object Request Broker communication protocol 
     CORBA,
-    /** Apache Thrift communication protocol */
+    /** Apache Thrift communication protocol 
     THRIFT,
-    /** Google PBuff communication protocol */
+    /** Google PBuff communication protocol 
     GOOGLE_PBUFF,
-    /** Zookeeper communication protocol */
+    /** Zookeeper communication protocol 
     ZOOKEEPER,
-    /** GO communication protocol */
+    /** GO communication protocol 
     GO,
     /*
     PLACEHOLDER_08,
@@ -148,10 +149,10 @@ public enum Protocol {
     PLACEHOLDER_28,
     PLACEHOLDER_29,
     PLACEHOLDER_30,
-    */
-    /** Network bridge communication */
+    
+    /** Network bridge communication 
     BRIDGE,
-    /** Internet Protocol communication */ 
+    /** Internet Protocol communication  
     IP_ONLY;
     /** None 
     NONE;	*/

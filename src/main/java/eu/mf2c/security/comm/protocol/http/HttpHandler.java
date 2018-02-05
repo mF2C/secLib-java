@@ -13,7 +13,9 @@
    See the License for the specific language governing permissions and
    limitations under the License 
  */
-package eu.mf2c.security.comm.protocol;
+package eu.mf2c.security.comm.protocol.http;
+
+import eu.mf2c.security.comm.protocol.ProtocolHandler;
 
 /**
  * @author Shirley Crompton
@@ -23,6 +25,6 @@ package eu.mf2c.security.comm.protocol;
  * @Created 16 Jan 2018
  *
  */
-public class HTTPHandler extends ProtocolHandler {
+public class HttpHandler extends ProtocolHandler {
 
 }

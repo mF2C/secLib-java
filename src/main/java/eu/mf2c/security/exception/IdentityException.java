@@ -16,7 +16,7 @@
 package eu.mf2c.security.exception;
 
 /**
- * Errors associated with the {@link eu.mf2c.security.comm.Channel <em>Channel</em>} object.
+ * Errors associated with the {@link eu.mf2c.security.comm.data.Identity <em>Identity</em>} object.
  * <p>
  * @author Shirley Crompton
  * @email  shirley.crompton@stfc.ac.uk
@@ -25,7 +25,7 @@ package eu.mf2c.security.exception;
  * @Created 12 Jan 2018
  *
  */
-public class ChannelException extends Exception {
+public class IdentityException extends Exception {
 	/**
 	 * unique identifier of this error
 	 */
@@ -36,7 +36,7 @@ public class ChannelException extends Exception {
 	 * 
 	 * @param message Error message to include
 	 */
-	public ChannelException(String message) {
+	public IdentityException(String message) {
 		super(message);
 	}
 
@@ -47,7 +47,7 @@ public class ChannelException extends Exception {
 	 * @param message error message {@link String}
 	 * @param cause {@link Throwable cause}
 	 */
-	public ChannelException(String message, Throwable cause) {
+	public IdentityException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
@@ -56,7 +56,7 @@ public class ChannelException extends Exception {
 	 * 
 	 * @param cause {@link Throwable} cause
 	 */
-	public ChannelException(Throwable cause) {
+	public IdentityException(Throwable cause) {
 		super(cause);
 	}
 

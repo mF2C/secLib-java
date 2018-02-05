@@ -18,6 +18,7 @@ package eu.mf2c.security.comm;
 import java.util.List;
 
 import eu.mf2c.security.data.Message;
+import eu.mf2c.security.data.ReceivedMessage;
 
 /**
  * mF2C secure communication API for establishing secure
@@ -33,6 +34,8 @@ import eu.mf2c.security.data.Message;
  */
 public interface Channelable {
 	
+	//variables in Channel class as we need them to be protected
+	
 	/** send a message */
 	public void send(Message message, List<Enum> flags);
 	
@@ -44,6 +47,27 @@ public interface Channelable {
 	 * flushes all buffers, closes all live connections 
 	 * gracefully. 
 	 */
-	public void destruct();
+	public void destruct();	
+	/**
+	 * Poll whether a message is available.  This is a non-blocking operation.
+	 * <p>
+	 * @return true if there is a message, else false.
+	 */
+	public boolean poll();
+	
+	/**
+	 * Pops a message off the message queue.  This is a non-blocking mehod.
+	 * <p>
+	 * @return  a {@link ReceivedMessage <em>ReceivedMessage</em>} object containg 
+	 * 			the sender channel&#39;friendlyname, flags, sender#95;id, the message
+	 * 			content plus the received and sent timestamps.  A null or empty string
+	 * 			is returned if there is no messages, dependent on behaviour of the 
+	 * 			specific protocol.
+	 */
+	public ReceivedMessage pop();
 
+	//Channelable is implemented by Channel, user can instantiate the interface to use its methods??? 
+	//or the concrete Channel 
+	//we need a separate interface for the user to registered as an Observer
+	
 }
