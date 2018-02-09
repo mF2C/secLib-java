@@ -18,9 +18,9 @@ package eu.mf2c.security.data;
 import java.security.Timestamp;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import net.minidev.json.JSONObject;
 
-import com.eclipsesource.json.JsonObject;
+import org.apache.log4j.Logger;
 
 import eu.mf2c.security.comm.Channel;
 
@@ -69,7 +69,7 @@ public class Message {
 	
 	public String sender_id;
 	
-	public JsonObject message; //could be String 64 encoded
+	public JSONObject message; //could be String 64 encoded
 	
 	public Timestamp time_sent;  //needs to check if type matches requirement
 	
@@ -79,7 +79,7 @@ public class Message {
 	
 	
 	
-	public Message(JsonObject message){
+	public Message(JSONObject message){
 		//Dealing with a received message, decrypt the JsonObject into a message object
 		//??what does a ping acknowledge looks like??  Do we need to differentiate a message and ping ack?????
 		

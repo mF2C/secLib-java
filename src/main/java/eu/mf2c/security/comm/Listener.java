@@ -35,8 +35,8 @@ import eu.mf2c.security.data.ReceivedMessage;
 public class Listener {
 	/** message logger attribute */
 	private static final Logger LOGGER = Logger.getLogger(Listener.class.getName());
-	/** synchronised FIFO queue attribute, for buffering the incoming messages ?? should this be in the Channel object*/
-	//protected ConcurrentLinkedQueue<ReceivedMessage> receivedBuffer = new ConcurrentLinkedQueue<ReceivedMessage>(); //may need to block until someting is in the buffer
+	/** synchronised FIFO queue attribute, incoming messages are buffered in the concrete message protocol handler*/
+	
 	
 	//according to the UML diagram the Listener has a ref to the protocol handler
 	

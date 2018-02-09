@@ -15,22 +15,35 @@
  */
 package eu.mf2c.security.comm.protocol.mqtt3;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
+import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
+import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
+import eu.mf2c.security.comm.Channel;
+import eu.mf2c.security.comm.Receiver;
 import eu.mf2c.security.comm.protocol.ProtocolHandler;
 import eu.mf2c.security.comm.util.Message;
+import eu.mf2c.security.comm.util.QoS;
+import eu.mf2c.security.comm.util.Security;
+import eu.mf2c.security.data.Identity;
 import eu.mf2c.security.data.ReceivedMessage;
+import eu.mf2c.security.exception.IdentityException;
+import eu.mf2c.security.exception.ProtocolHandlerException;
 
 /**
- * Mqtt3 messaging protocol handler.  The caller must set the three message queues
- * to enable call backs after instantiating the handler...... 
- * 
- * 
+ * Mqtt3 messaging protocol handler.  The {@link Channel <em>Channel</em>} object
+ * must set the three message queues to enable call backs.  The handler can be
+ * used as both a publisher and subscriber.  Native Mqtt3 capability 
+ * for buffering outgoing messages are used here.   
+ * <p> * 
  * @author Shirley Crompton
  * @email  shirley.crompton@stfc.ac.uk
  * @org Data Science and Technology Group,
@@ -43,14 +56,43 @@ public class Mqtt3Handler extends ProtocolHandler implements MqttCallback {
 	//think about concurrency
 	//these queue needs to have a message type!!!!
 	//!!! be careful of thread hanging....
-	
+		
 	/** message logger */
 	private static Logger LOGGER = Logger.getLogger(Mqtt3Handler.class.getName());
+	private static String dest;
+	
+	/***************Constants**********************/
+	/** Constant name for the public destination topic */
+	private static final String TOPIC_PUBLIC = "mf2c/" + dest + "/public";
+	/** Constant name for the private destination topic */
+	private static final String TOPIC_PRIVATE = "mf2c/" + dest + "/private";
+	/** Constant name for the protected destination topic */
+	private static final String TOPIC_PROTECTED = "mf2c/" + dest + "/protected";
+	/** Constant name for the ping request topic */
+	private static final String TOPIC_PINGREQ = "mf2c/public/pingreq";
+	/** Constant name for the ping acknowledgement topic */
+	private static final String TOPIC_PINGACK = "mf2c/public/pingack";
+	/** Constant name for the broker service status topic */
+	private static final String TOPIC_STATUS = "mf2c/broker_services/status";
+	/** Constant name for the handshake topic */
+	private static final String TOPIC_HANDSHAKE = "mf2c/" + dest + "/public/handshake";
+	/** Constant for connected connection status */
+	private static final String STATUS_CONNECTED = "C";
+	/** Constant for gracefully disconnected connection status */
+	private static final String STATUS_GRACE_DISCONNECT = "DG";
+	/** Constant for ungraceful disconnected connection status */
+	private static final String STATUS_UG_DISCONNECT = "DU";
+	
+	
+	/** the Mqtt client */
+	private MqttClient client;
 	
 	/**
-	 * Default empty constructor
+	 * Construct an instant
 	 */
 	public Mqtt3Handler() {
+		super();
+		dest = super.destination;
 	}	
 	/**
 	 * Setter for the {@link #pingAckQ <em>pingAckQ</em>} attribute
@@ -78,8 +120,86 @@ public class Mqtt3Handler extends ProtocolHandler implements MqttCallback {
 	public void setMsgQ(ConcurrentLinkedQueue msgQ) {
 		this.msgQ = msgQ;
 	}*/
+	
+	/*********************************** Mqtt3 client set up ********************************************************/
+	public void setup(Properties properties, Receiver receiver) throws ProtocolHandlerException {
+		super.setup(properties, receiver);
+		//protocol specific
+		try{
+			MqttConnectOptions connOpt = new MqttConnectOptions();		
+			connOpt.setCleanSession(false); //subscription info and queued messages are retained after client disconnect
+			connOpt.setKeepAliveInterval(keepAlive);
+			//payload is a base64 encoded version of the key:value
+			connOpt.setWill(TOPIC_STATUS, super.generatePayload(getStatusMessage(STATUS_UG_DISCONNECT),Security.PUBLIC), QoS.ATLEASTONCE.ordinal(), true);
+			//
+			client = new MqttClient(broker, friendlyName);
+			client.connect(connOpt);
+			
+			connack = client.isConnected();
+			
+			//			
+			handshake();
+				
+			
+			
+			
+		}catch(MqttException me){
+			LOGGER.error("Mqtt exception on setting up mqtt3 protocol handler: " + me.getMessage());
+			throw new ProtocolHandlerException(me.getMessage());
+		}catch(ProtocolHandlerException pe){
+			throw pe;
+		}catch(Exception e){
+			LOGGER.error("Failed to set up mqtt3 protocol handler: " + e.getMessage());
+			throw new ProtocolHandlerException(e);
+		}
+		
+		
+		
+		
+		
+	}
+	/**
+	 * Connect to broker and carry out the handshake process.
+	 */
+	public void handshake() throws MqttException{
+		
+		
+		
+		
+		
+		
+		
+		
+	}
+	
+	
+	
+	/*********************************** Mqtt3 Publisher handling *************************************************/
+	public void publish(List<String> destinations, Message msg){ //assuming qos, security flag already embedded in the Message object
+		
+		//add timestamp to message
+		
+		//check if sender's id is in message
+		//make sure message is signed for sec=prot || priv and there is a public key
+		//
+		
+		
+		
+		
+	}
+	
+	
+	
+	
+	/*********************************** Mqtt3 Subscriber handling *************************************************/
+	
+	
+	
+	
+	
+	
 	/************************************ Mqtt3 callback handling *************************************************/
-/**  Note the method javadocs are copied from the mqtt3 library */	
+	/**  Note the method javadocs are copied from the mqtt3 library */	
 	
 	/**
 	 * This method is called when the connection to the server is lost.
@@ -153,13 +273,47 @@ public class Mqtt3Handler extends ProtocolHandler implements MqttCallback {
 			this.pingReqQ.offer(rm);
 		}else{
 			this.msgQ.offer(rm);
-		}
-		
+		}		
 		LOGGER.debug("Offered message(" +  msg.getId()+ ") to " + topic + " queue");
-		
-		
 	}
 	
+	/************************************** methods for Channel to poll and pop incoming message queue *************************************/
 	
-
+	
+	/**
+	 * Check if there are any messages in the incoming message queue.
+	 * <p>
+	 * @return true if there the queue is not empty, else false.
+	 */
+	public boolean poll(){
+		if(this.msgQ.isEmpty()){
+			return false;
+		}else{
+			return true;
+		}
+	}
+	
+	/************************************ utilities ***************************************************************************************/
+	/**		
+	 * Assembly contents for the status message.   Status messages are public by default.
+	 * <p>
+	 * @param status
+	 * @return	a {@link java.util.HashMap <em>HashMap</em>} of key values for input into the communication payload.
+	 * @throws ProtocolHandlerException on error access the owner&#39;s public key
+	 */
+	public HashMap<String, String> getStatusMessage(String status) throws ProtocolHandlerException{		
+		//status messages are public	
+		HashMap<String, String> statusHM = new HashMap<String, String>();
+		statusHM.put("status", status);
+		
+		if(status.equals(STATUS_CONNECTED)){
+			try {
+				statusHM.put("public_key", Identity.getInstance().getPublicKey().toString());
+			} catch (IdentityException e) {
+				LOGGER.error("Failed to get a String representation of the public key : " + e.getMessage());
+				throw new ProtocolHandlerException(e);
+			}
+		}
+		return statusHM;
+	}	
 }

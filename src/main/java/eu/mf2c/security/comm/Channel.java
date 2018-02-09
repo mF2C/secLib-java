@@ -118,7 +118,7 @@ public class Channel implements Channelable {
 		this.handler = ProtocolHandlers.newProtocolHandler(transport);
 		//initiaise it
 		//this.handler.setMessageBuffer(this.receivedBuffer);
-		
+		//send handshake message
 		
 		
 		
@@ -178,15 +178,26 @@ public class Channel implements Channelable {
 		
 		
 	}
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean poll() {
-		// TODO Auto-generated method stub
-		return false;
+		//poll whether a message is available 
+		return this.handler.poll();
 	}
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public ReceivedMessage pop() {
-		// TODO Auto-generated method stub
-		return null;
+		// pops a message off the message queue
+		// returns null if queue is empty, caller must guard for NULL
+		ReceivedMessage rm = this.handler.pop();
+		//or do we need to reformat the receivedMessage object????  decrypt according to secuirty requirement???
+		//????
+		//
+		return rm;  
 	}
 	
 	private void getListener(){

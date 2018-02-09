@@ -17,16 +17,22 @@ package eu.mf2c.security.data;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
+import java.security.Signature;
+import java.security.SignatureException;
+import java.util.HashMap;
 import java.util.Random;
 
 import org.apache.log4j.Logger;
 
 import eu.mf2c.security.comm.Channel;
+import eu.mf2c.security.comm.util.Base64Helper;
 import eu.mf2c.security.exception.IdentityException;
 
 /**
@@ -51,7 +57,7 @@ public class Identity {
 	/** Device Id attribute */
 	private byte[] deviceId = null; //32 bits
 	/** RSA Keypair */
-	KeyPair keyPair;
+	private KeyPair keyPair;
 	
 	
 	/**
@@ -141,7 +147,49 @@ public class Identity {
 	public PublicKey getPublicKey(){
 		return this.keyPair.getPublic();
 	}
-	
-	//method for signing message????
-	
+	/**
+	 * Sign a message using SHA256withRSA algorithm.
+	 * <p>	
+	 * @param base64Bytes  the input message represented as a {@link java.lang.Byte <em>Byte</em>} object
+	 * @return the signed message as a {@link java.lang.String <em>String</em>} object
+	 * @throws IdentityException on processing error
+	 */
+	public String signMessageAsString(byte[] base64Bytes) throws IdentityException{
+		
+		byte[] signatureValue = this.signMessage(base64Bytes);
+		
+		return (signatureValue == null ? null : Base64Helper.decodeToString(signatureValue));
+		
+	}
+	/**
+	 * Sign a message using SHA256withRSA algorithm.
+	 * <p>
+	 * @param base64Bytes  the input message represented as a {@link java.lang.Byte <em>Byte</em>} object
+	 * @return the signed message as a {@link java.lang.Byte <em>Byte</em>} object
+	 * @throws IdentityException on processing error
+	 */
+	public byte[] signMessage(byte[] base64Bytes) throws IdentityException{
+		
+		byte[] signatureValue = null;
+		
+		try{
+			Signature signature = Signature.getInstance("SHA256withRSA");
+			// we will initialize the crypto signature instance with the created private key
+			signature.initSign(this.keyPair.getPrivate());
+			signature.update(base64Bytes);
+			signatureValue = signature.sign();
+			
+		}catch (NoSuchAlgorithmException e) {
+			LOGGER.error("NoSuchAlgorithm error when trying to sign message : " + e.getMessage());
+			throw new IdentityException(e);
+		} catch (InvalidKeyException ike) {
+			LOGGER.error("InvalidKeyException error when trying to sign message : " + ike.getMessage());
+			throw new IdentityException(ike);
+		} catch (SignatureException se) {
+			LOGGER.error("SignatureException error when trying to sign message : " + se.getMessage());
+			throw new IdentityException(se);
+		}	
+		return (signatureValue == null ? null : signatureValue);		
+		
+	}
 }
