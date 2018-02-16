@@ -15,6 +15,7 @@
  */
 package eu.mf2c.security.comm;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -29,6 +30,7 @@ import eu.mf2c.security.data.Identity;
 import eu.mf2c.security.data.Message;
 import eu.mf2c.security.data.ReceivedMessage;
 import eu.mf2c.security.exception.ChannelException;
+import eu.mf2c.security.exception.ProtocolHandlerException;
 
 
 /**
@@ -190,14 +192,23 @@ public class Channel implements Channelable {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ReceivedMessage pop() {
+	public ReceivedMessage pop()  {
 		// pops a message off the message queue
 		// returns null if queue is empty, caller must guard for NULL
-		ReceivedMessage rm = this.handler.pop();
-		//or do we need to reformat the receivedMessage object????  decrypt according to secuirty requirement???
-		//????
+		try {
+			HashMap<String, Object> rm = this.handler.pop();
+			
+			//need to turn the HashMap into a Structured object
+			//if we need to!!!!!!!!, verify signature and decrypt etc.
+			//?????????????????
+			
+			
+		} catch (ProtocolHandlerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		//
-		return rm;  
+		return new ReceivedMessage();  
 	}
 	
 	private void getListener(){

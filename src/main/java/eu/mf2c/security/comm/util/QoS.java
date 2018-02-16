@@ -32,11 +32,13 @@ package eu.mf2c.security.comm.util;
  *
  */
 public enum QoS {
-	/** Message to be sent at most once.  Use this flag for asynchronous communication */
+	
+	/** Message to be sent at most once. Use this flag for asynchronous communication.  
+	 * Messages will not be stored nor re-sent.  Not acknowledged by recipients */	
 	ATMOSTONCE,
-	/** Message to be sent at least once */
+	/** Message to be sent at least once, but may be duplicated */
     ATLEASTONCE,
-    /** Message to be sent exactly once */
+    /** Message to be sent exactly once.  Most overhead.*/
     EXACTLYONCE;
     /** QoS not defined 
     UNDEFINED ;*/

@@ -15,7 +15,10 @@
  */
 package eu.mf2c.security.comm.protocol.http;
 
+import java.util.HashMap;
+
 import eu.mf2c.security.comm.protocol.ProtocolHandler;
+import eu.mf2c.security.exception.ProtocolHandlerException;
 
 /**
  * @author Shirley Crompton
@@ -26,5 +29,17 @@ import eu.mf2c.security.comm.protocol.ProtocolHandler;
  *
  */
 public class HttpHandler extends ProtocolHandler {
+
+	@Override
+	public HashMap<String, Object> pop() throws ProtocolHandlerException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void disconnect() {
+		// TODO Auto-generated method stub
+		
+	}
 
 }

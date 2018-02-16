@@ -15,24 +15,20 @@
  */
 package eu.mf2c.security.data;
 
-import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Signature;
 import java.security.SignatureException;
-import java.util.HashMap;
-import java.util.Random;
 
 import org.apache.log4j.Logger;
 
 import eu.mf2c.security.comm.Channel;
-import eu.mf2c.security.comm.util.Base64Helper;
 import eu.mf2c.security.exception.IdentityException;
 
 /**
@@ -90,10 +86,10 @@ public class Identity {
 		//SecureRandom random = SecureRandom.getInstance("SHA1PRNG", "SUN");
 		//keyGen.initialize(1024, random);
 		keyGen.initialize(2048);
-		this.keyPair = keyGen.generateKeyPair();//TODO randomly generates a device id for now, replace this
+		keyPair = keyGen.generateKeyPair();//TODO randomly generates a device id for now, replace this
 		//According to api spec, device id could be calculated locally
-		this.deviceId = new byte[32];
-		SecureRandom.getInstanceStrong().nextBytes(this.deviceId);
+		deviceId = new byte[32];
+		SecureRandom.getInstanceStrong().nextBytes(deviceId);
 		//InetAddress ip = InetAddress.getLocalHost();
 		//String myHostName = ip.getHostName();
 	}
@@ -137,7 +133,7 @@ public class Identity {
 	 * */
 	public byte[] getDeviceId() throws UnknownHostException{
 		//TODO need to clarify what is a DeviceId .....
-		return this.deviceId;
+		return deviceId;
 	}
 	/**
 	 * Getter for the RSA public key of this identity object.
@@ -145,38 +141,38 @@ public class Identity {
 	 * @return the public key object.
 	 */
 	public PublicKey getPublicKey(){
-		return this.keyPair.getPublic();
+		return keyPair.getPublic();
 	}
 	/**
 	 * Sign a message using SHA256withRSA algorithm.
 	 * <p>	
-	 * @param base64Bytes  the input message represented as a {@link java.lang.Byte <em>Byte</em>} object
+	 * @param payloadBytes  the input message represented as a {@link java.lang.Byte <em>Byte</em>} object
 	 * @return the signed message as a {@link java.lang.String <em>String</em>} object
 	 * @throws IdentityException on processing error
 	 */
-	public String signMessageAsString(byte[] base64Bytes) throws IdentityException{
+	public String signMessageAsString(byte[] payloadBytes) throws IdentityException{
 		
-		byte[] signatureValue = this.signMessage(base64Bytes);
+		byte[] signatureValue = signMessage(payloadBytes);
 		
-		return (signatureValue == null ? null : Base64Helper.decodeToString(signatureValue));
+		return (signatureValue == null ? null : new String(signatureValue, StandardCharsets.UTF_8));
 		
 	}
 	/**
 	 * Sign a message using SHA256withRSA algorithm.
 	 * <p>
-	 * @param base64Bytes  the input message represented as a {@link java.lang.Byte <em>Byte</em>} object
+	 * @param payloadBytes  the input message represented as a {@link java.lang.Byte <em>Byte</em>} object
 	 * @return the signed message as a {@link java.lang.Byte <em>Byte</em>} object
 	 * @throws IdentityException on processing error
 	 */
-	public byte[] signMessage(byte[] base64Bytes) throws IdentityException{
+	public byte[] signMessage(byte[] payloadBytes) throws IdentityException{
 		
 		byte[] signatureValue = null;
 		
 		try{
 			Signature signature = Signature.getInstance("SHA256withRSA");
 			// we will initialize the crypto signature instance with the created private key
-			signature.initSign(this.keyPair.getPrivate());
-			signature.update(base64Bytes);
+			signature.initSign(keyPair.getPrivate());
+			signature.update(payloadBytes);
 			signatureValue = signature.sign();
 			
 		}catch (NoSuchAlgorithmException e) {
