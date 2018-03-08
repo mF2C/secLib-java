@@ -26,6 +26,8 @@ import java.security.SecureRandom;
 import java.security.Signature;
 import java.security.SignatureException;
 
+import javax.crypto.Cipher;
+
 import org.apache.log4j.Logger;
 
 import eu.mf2c.security.comm.Channel;
@@ -131,7 +133,7 @@ public class Identity {
 	 * Getter for the {@link #deviceId} attribute
 	 * @return    the {@link #deviceId} attribute
 	 * */
-	public byte[] getDeviceId() throws UnknownHostException{
+	public byte[] getDeviceId(){
 		//TODO need to clarify what is a DeviceId .....
 		return deviceId;
 	}
@@ -188,4 +190,41 @@ public class Identity {
 		return (signatureValue == null ? null : signatureValue);		
 		
 	}
+	
+	/**
+	 * Decrypt the payload using the owner&#39;s {@link java.security.Private <em>Private</em>}
+	 * The sender is the destination recipient.  The owner is the user of this {@link Channel <em>Channel</em>} object.
+	 * The payload is encrypted using the RSA asymmetric key encryption method.
+	 * <p>
+	 * @param enc_string  a {@link java.lang.String <em>String</em>} representation of the encrypted payload
+	 * @return	the decrypted payload {@link java.lang.String <em>String</em>}
+	 * @throws Exception on any processing error
+	 */
+	public String decryptPayload(String enc_string) throws Exception{
+		//In the prototype, we assume that the sender encrypted the payload using the owner's 
+		//public key.  So we use the owner's private key to decrypt the payload
+		//
+		//encryptPayload method.  The incoming String should be base64 unencoded and deserialised from Json
+		//TODO need to redefine this
+		Cipher cipher = Cipher.getInstance("RSA");
+		cipher.init(Cipher.DECRYPT_MODE, this.keyPair.getPrivate());
+		//the input string should be decoded from base64
+		return new String(cipher.doFinal(enc_string.getBytes()), StandardCharsets.UTF_8); 	
+	}
+	
+	/**
+	 * Encrypt the payload using the agent&#39;s {@link java.security.PrivateKey <em>PrivateKey</em>}
+	 * The payload is encrypted using the RSA asymmetric key encryption method.
+	 * <p> 
+	 * @param payload   a {@link java.lang.String <em>String</em>} representation of the payload
+	 * @return	the encrypted {@link java.lang.Byte <em>Byte</em>} array object.
+	 * @throws Exception on any processing error
+	
+	public byte[] encryptPayload(String payload) throws Exception {
+		//depends on requirements, we could also swap to encrypt with Identity object's private key, assuming recipients got
+		//the reciprocal public key
+		Cipher cipher = Cipher.getInstance("RSA");
+		cipher.init(Cipher.ENCRYPT_MODE, keyPair.getPrivate());
+		return cipher.doFinal(payload.getBytes());
+	} //Jen said this must be done with the recipient's public key   */
 }

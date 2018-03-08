@@ -15,21 +15,22 @@
  */
 package eu.mf2c.security.comm;
 
+import java.security.PublicKey;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Timer;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.log4j.Logger;
 
 import eu.mf2c.security.comm.protocol.ProtocolHandler;
 import eu.mf2c.security.comm.protocol.ProtocolHandlers;
-import eu.mf2c.security.comm.protocol.ProtocolHandlers;
+import eu.mf2c.security.comm.util.Privacy;
 import eu.mf2c.security.comm.util.Protocol;
+import eu.mf2c.security.comm.util.QoS;
+import eu.mf2c.security.comm.util.Security;
 import eu.mf2c.security.data.Identity;
 import eu.mf2c.security.data.Message;
-import eu.mf2c.security.data.ReceivedMessage;
 import eu.mf2c.security.exception.ChannelException;
+import eu.mf2c.security.exception.MessageException;
 import eu.mf2c.security.exception.ProtocolHandlerException;
 
 
@@ -47,36 +48,30 @@ import eu.mf2c.security.exception.ProtocolHandlerException;
  * @Created 9 Jan 2018
  *
  */
-public class Channel implements Channelable {
+public class Channel implements Channelable {	
 	
-	/*
-	 * !!!!!!!!!!!!!!
-	A Channel has a Listener
-	A Ping Service has a Listener
-	A Listener may be part of a Ping Service
-	
-	*/
 	
 	private final static Logger LOGGER = Logger
 			.getLogger(Channel.class.getName());
 	/** Transport type  */
-	protected Protocol transport = null; //initialised to null
-	/** Channel friendly name */
+	protected Protocol transport = null; //initialised to null	
+	/** Channel friendy name */
 	protected String friendyName;
+	/** communication target.  A null destination signifies a listening channel */
+	protected String destination = null;
 	/** Identity attribute, this is a Singleton */
 	protected Identity identity;
-	/** The incoming messages buffer, excludes ping requests and acknowledgements */
-	//!!!!may need to block until something is in the buffer, not sure that it should be here!!!!
-	//protected ConcurrentLinkedQueue<ReceivedMessage> receivedBuffer = new ConcurrentLinkedQueue<ReceivedMessage>(); 
-	
 	/** Listener attribute */
-	protected Listener listener; //needs threading
+	protected Listener listener; 
 	/** Ping service attribute */
-	protected PingService pingService; //needs threading
-	/** Sender attribute */
-	//protected Sender sender;
+	protected PingService pingService; 	
 	/** ProtocolHandler attribute */
 	protected ProtocolHandler handler;
+	/** message broker address */
+	private String broker = "vds095.gridpp.rl.ac.uk"; //hardcoded for the moment, needs to be discovered during the bootstrap process
+	/** time out value in seconds */ //hardcoded for the moment, needs to be configurable
+	private int timeout = 60;
+	
 	
 	
 	/**
@@ -85,23 +80,33 @@ public class Channel implements Channelable {
 	 * <p>
 	 * @param destination  {@link java.lang.String <em>String</em> representation of the communication destination
 	 * @param transport    {@link Protocol <em>Protocol</em>} flag
-	 * @param friendyName  {@link java.lang.String <em>String</em> representation of the instance friendy name
+	 * @param friendyName  {@link java.lang.String <em>String</em> representation of the instance&#39;s friendy name
 	 * @throws {@link ChannelException} on {@link #initChannel(String, Protocol)} error
 	 */
-	public Channel(String destination, Protocol transport, String friendyName) throws ChannelException{
-		LOGGER.debug("Creating an instance : " + friendyName + ", " + destination + ", " + transport);
-		//
-		//this.transport = transport;
+	public Channel(String destination, Protocol protocol, String friendyName) throws ChannelException{
+		//validate entry
+		if(protocol == null){
+			throw new ChannelException("transport protocol cannot be null!");
+		}
+		if(friendyName == null || friendyName.isEmpty()){
+			throw new ChannelException("friendyName cannot be null or empty!");
+		}
+		if(destination == null){	// just a listening channel, temporary fix until we use PKI
+			LOGGER.debug("Creating a listening Channel instance : " + friendyName + ", using " + transport);
+		}else{
+			this.destination = destination;
+			LOGGER.debug("Creating a Channel instance : " + friendyName + ", using " + transport + " to " + destination);
+		}		
 		this.friendyName = friendyName;
 		try{
 			//bootstrap the identity... this is passed to the protocolHandler on instantiation
 			this.identity = Identity.getInstance();
 			//this creates the correct protocol client
-			this.initChannel(destination, transport);
+			this.initChannel();
 			//this creates the Listener object
-			this.listener = createListener(this.handler);
-			//
-			//this.pingService = newPingService(this.listener);
+			createListener();			
+			//starts the ping service
+			startPingService();
 		}catch(Exception e){
 			LOGGER.error("Failed to instantiate channel with friendy name(" + this.friendyName + "): " + e.getMessage()) ;
 			throw new ChannelException(e.getCause());
@@ -109,36 +114,46 @@ public class Channel implements Channelable {
 				
 	}
 	/** 
-	 * initialise the Channel and set up the required {@link ProtocolHandler <em>ProtocolHandler</em>}
-	 * <p>
-	 * @param destination  {@link java.lang.String <em>String</em> representation of the communication destination
-	 * @param transport    {@link Protocol <em>Protocol</em>} flag
+	 * initialise the Channel and set up the required {@link ProtocolHandler <em>ProtocolHandler</em>}	 * 
 	 */
-	private void initChannel(String destination, Protocol transport) throws Exception{
+	private void initChannel() throws Exception{
 		
 		//create the handler
-		this.handler = ProtocolHandlers.newProtocolHandler(transport);
+		this.handler = ProtocolHandlers.newProtocolHandler(this.transport);
 		//initiaise it
-		//this.handler.setMessageBuffer(this.receivedBuffer);
-		//send handshake message
-		
-		
-		
-		
-		
+		HashMap<String, String> properties = new HashMap<String, String>();
+		properties.put("friendyName", this.friendyName);
+		properties.put("broker", this.broker);
+		properties.put("destination", (destination == null ? null : this.destination)); //could be null
+		properties.put("keepAlive",String.valueOf(this.timeout));
+		properties.put("timeOut", String.valueOf(this.timeout));
+		//
+		this.handler.setup(properties); //set up handles key exchange etc.		
 	}
-	
-	private Listener createListener(ProtocolHandler handler){
-		//we create the Listener here and start the thread
-		
-		return null;
+	/**
+	 * Create an instance of the {@link Listener <em>Listener</em>} to handle
+	 * incoming ping requests and ping acknowledgements.
+	 */
+	private void createListener(){
+		//
+		this.listener = new Listener(this.handler, this.timeout); //provide a ref to the handler
 	}
-	
+	/**
+	 * Create and start the service in a {@link java.lang.Thread <em>Thread</em>}.
+	 * If this is not just a listening channel, the service will send out a ping request 
+	 * to the target {@link #destination <em>destination</em>} at a set interval.
+	 * The service also runs the {@link Listener <em>Listener</em>} periodically to
+	 * handle incoming ping requests and acknowledgements.
+	 */
 	private void startPingService(){
 		LOGGER.debug("About to start ping service in a thread ....");
 		//
-		this.pingService = new PingService(30); //try every 30 seconds as the ping interval, could make this configurable
-		Thread pingServiceThread = new Thread(this.pingService);
+		boolean noPing = false;
+		if(this.destination == null){
+			noPing = true;
+		}
+		this.pingService = new PingService(this.timeout, this.listener, noPing); //try every 60 seconds as the ping interval, could make this configurable
+		Thread pingServiceThread = new Thread(this.pingService, "PingService");
 		pingServiceThread.start();
 		
 	}
@@ -153,32 +168,72 @@ public class Channel implements Channelable {
 	}
 	
 	
-	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public void send(Message message, List<Enum> flags) {
-		// TODO 
-		//build the header, unicode input
-		//first send Channel header to headshake
-		//then send the message
-		
-		
-		
-		
+	public void send(Message message, List<Enum<?>> flags) throws ChannelException {
+		//validate 
+		if(message == null || message.getPayloadHM() == null || message.getPayloadHM().isEmpty() ){
+			LOGGER.error("Unable to send message, there is no message or message payload!");
+			throw new ChannelException("Unable to send message, there is no message or message payload!");
+		}
+		if(flags == null || flags.isEmpty()){
+			LOGGER.error("Unable to send message, need to specify flags!");
+			throw new ChannelException("Unable to send message, need to specify flags!");
+		}
+		Security sec = (Security) getFlag(Security.class, flags);
+		if(sec == null ){
+			LOGGER.error("Unable to send message, need to specify security flag!");
+			throw new ChannelException("Unable to send message, need to specify security flag!");
+		}
+		QoS qos = (QoS) getFlag(QoS.class, flags);
+		if(qos == null ){
+			LOGGER.error("Unable to send message, need to specify QoS flag!");
+			throw new ChannelException("Unable to send message, need to specify QoS flag!");
+		}
+		Privacy privacy = (Privacy) getFlag(Privacy.class, flags);
+		if(privacy == null ){
+			LOGGER.error("Unable to send message, need to specify privacy flag!");
+			throw new ChannelException("Unable to send message, need to specify privacy flag!");
+		}
+		//we are safe now, go ahead
+		try{
+			message.packMsg(sec, this.transport, qos, null);
+			this.handler.publish(this.handler.getDestination(sec),qos, message.getPayloadHM());
+			
+		}catch(Exception e){
+			LOGGER.error("Error sending message: " + e.getMessage());
+			throw new ChannelException("Error sending message: " + e.getMessage());
+		}		
 	}
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void flush() {
-		// TODO flush all the buffers if used
+		// flush all the outgoing message buffers if used
+		//TODO clarify if we need to flush the concurrent queues too
+		try {
+			this.handler.flush();
+		} catch (ProtocolHandlerException e) {
+			LOGGER.error("Error flushing buffers: " + e.getMessage());
+		}
 		
 	}
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void destruct() {
-		
+		//stop the ping service which also controls the listener
+		this.stopPingService();
 		// flush() and gracefully terminate the connection
 		this.friendyName = null;
 		this.flush();
 		//call the protocol handler to terminate connection gracefully....
-		
-		
+		this.handler.disconnect();
+		LOGGER.info("Successfully destroyed Channel(" + this.friendyName + ")!  Goodbye!");
 	}
 	/**
 	 * {@inheritDoc}
@@ -192,31 +247,37 @@ public class Channel implements Channelable {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ReceivedMessage pop()  {
+	public Message pop()  {
 		// pops a message off the message queue
 		// returns null if queue is empty, caller must guard for NULL
 		try {
-			HashMap<String, Object> rm = this.handler.pop();
-			
-			//need to turn the HashMap into a Structured object
-			//if we need to!!!!!!!!, verify signature and decrypt etc.
-			//?????????????????
-			
-			
-		} catch (ProtocolHandlerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		//
-		return new ReceivedMessage();  
+			Message rm = this.handler.pop();
+			//
+				rm.unpackMsg(); //this should, if necessary, verify signature and decrypt payload msg
+				//we can have this returning just the payload hashmap, pending further discussion re requirements.
+				//so far so good, signed message is verified and encrypted message decrypted at this stage
+				LOGGER.debug("Unpacked message, verified signature and decrypted payload as per secuirty requirement.");
+				return rm;
+		} catch (MessageException me) {
+			// 
+			LOGGER.error("Error unpacking message: " + me.getMessage());
+			return null;
+		}  
+	}
+	///////////////////////////////////////////instance methods///////////////////////////////////////
+	/**
+	 * Find the flag according to the provided {@link java.lang.Enum <em>Enum</em>} type
+	 * <p>
+	 * @param clazz	the required {@link java.lang.Enum <em>Enum</em>} type
+	 * @param list	The {@link java.util.List <em>List</em>} to filter 
+	 * @return	the retrieved object or null if the type is not found.
+	 */
+	public Enum<?> getFlag(Class<?> clazz, List<Enum<?>> list){
+		return list.stream().filter(e -> clazz.isInstance(e)).findAny().orElse(null);
 	}
 	
-	private void getListener(){
+	/////////////////////////////////////////////////////////////////////////////////////////////////
 		
-	}
-	
-
-	
 	/**
 	 * @param args
 	 */

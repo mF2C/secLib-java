@@ -18,7 +18,7 @@ package eu.mf2c.security.comm;
 import java.util.List;
 
 import eu.mf2c.security.data.Message;
-import eu.mf2c.security.data.ReceivedMessage;
+import eu.mf2c.security.exception.ChannelException;
 
 /**
  * mF2C secure communication API for establishing secure
@@ -33,11 +33,19 @@ import eu.mf2c.security.data.ReceivedMessage;
  *
  */
 public interface Channelable {
+	/** current version of mF2C security libarary */
+	public String version = "0.1.0-alpha"; //increment this for each release
 	
-	//variables in Channel class as we need them to be protected
-	
-	/** send a message */
-	public void send(Message message, List<Enum> flags);
+	/**
+	 * Send a message
+	 * <p>
+	 * @param message	The {@link Message <em>Message</em>} object
+	 * @param flagHM	A {@link java.util.List <em>List</em>} of  
+	 * 						{@link java.lang.Enum <em>Enum</em>} flags specifying
+	 * 						the security, privacy and quality of service requirements  
+	 * @throws ChannelException	on processing errors
+	 */
+	public void send(Message message, List<Enum<?>> flags) throws ChannelException;
 	
 	/** flush the message buffers */
 	public void flush();
@@ -64,7 +72,7 @@ public interface Channelable {
 	 * 			is returned if there is no messages, dependent on behaviour of the 
 	 * 			specific protocol.
 	 */
-	public ReceivedMessage pop();
+	public Message pop();
 
 	//Channelable is implemented by Channel, user can instantiate the interface to use its methods??? 
 	//or the concrete Channel 

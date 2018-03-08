@@ -18,6 +18,9 @@ package eu.mf2c.security.comm.protocol.http;
 import java.util.HashMap;
 
 import eu.mf2c.security.comm.protocol.ProtocolHandler;
+import eu.mf2c.security.comm.util.QoS;
+import eu.mf2c.security.comm.util.Security;
+import eu.mf2c.security.data.Message;
 import eu.mf2c.security.exception.ProtocolHandlerException;
 
 /**
@@ -31,7 +34,7 @@ import eu.mf2c.security.exception.ProtocolHandlerException;
 public class HttpHandler extends ProtocolHandler {
 
 	@Override
-	public HashMap<String, Object> pop() throws ProtocolHandlerException {
+	public Message pop() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -40,6 +43,58 @@ public class HttpHandler extends ProtocolHandler {
 	public void disconnect() {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public HashMap<String, Object> getStatusMessage(String status)
+			throws ProtocolHandlerException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void publish(String topicName, QoS qos,
+			HashMap<String, Object> payload) throws ProtocolHandlerException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void flush() throws ProtocolHandlerException {
+		// TODO Auto-generated method stub
+		
+	}
+	/**
+	 * {@inheritDoc}
+	 */
+	@SuppressWarnings("unchecked")
+	public void setup(HashMap<String, String> properties) throws ProtocolHandlerException {
+		//TODO
+	}
+
+	@Override
+	public HashMap<String, Object> getPingMessage(Object reqTS)
+			throws ProtocolHandlerException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getPingRequestDest() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getPingAckDest(String target) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getDestination(Security sec) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

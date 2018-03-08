@@ -15,16 +15,20 @@
  */
 package eu.mf2c.security.comm;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.time.Instant;
+import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 
-import eu.mf2c.security.data.ReceivedMessage;
+import eu.mf2c.security.comm.protocol.ProtocolHandler;
+import eu.mf2c.security.comm.util.QoS;
+import eu.mf2c.security.comm.util.Security;
+import eu.mf2c.security.data.Message;
+import eu.mf2c.security.exception.MessageException;
 
 /**
- * The Listener listens to incoming messages and enqueue them. 
- * If it subscribes to the <i>ping</i> topic, the {@link Channel <em>Channel</em>}
- * needs to response to the pings.
+ * The Listener handles incoming ping acknowledgement and request {@link Message <em>Message</em>}s.
+ * <p>
  * @author Shirley Crompton
  * @email  shirley.crompton@stfc.ac.uk
  * @org Data Science and Technology Group,
@@ -32,44 +36,87 @@ import eu.mf2c.security.data.ReceivedMessage;
  * @Created 16 Jan 2018
  *
  */
-public class Listener {
+public class Listener implements Runnable {
 	/** message logger attribute */
 	private static final Logger LOGGER = Logger.getLogger(Listener.class.getName());
-	/** synchronised FIFO queue attribute, incoming messages are buffered in the concrete message protocol handler*/
-	
-	
-	//according to the UML diagram the Listener has a ref to the protocol handler
-	
-	
-	
-	///primary role is to listen to incoming messages and enqueue them.  ??Wouldn't this be better if we need to protocol handler filters the message, then we don't need to know about
-	//protocol-specific processing (eg. serializaton, how the 'destination' is represented [e.g. as a topic in messaging] etc.)
-	//will need to use more than 1 queue anyway, as once you pop it, you can't put it back or if you enqueue it again, it will be at the bottom of the queue
-	//peek only looks at the head object in the queue	
-	
-	//???needs to implement threading 	//needs to the instantiated with a ConcurrentLinkedQueue so that the FIFO queued messages can be accessed threadsafe 
-	//a PingService aggregates a Listener object
-	//Channel creates Listener with a ProtocolHandler ref
-	
-	public ReceivedMessage pop(){
-		//get 1 message at a time from the FIFO queue
-		//should return a multi-valued class (friendlyname, flags, sender_id, msg, tmstamp sent from src and received here)
-		//implementation should return NULL (ConcurrentLinkedQueue returns null when empty) or an empty String
-		//this should be used via the Channel object by the user client 
-		
-		
-		return null;
+	/** the protocol handler attribute for publishing and receiving messages*/
+	private ProtocolHandler handler;
+	/** last ping timestamp in epoch seconds */
+	private long lastPing;
+	/** last ping acknowledgement timestamp in epoch seconds*/
+	private long lastPingAck;
+	/** timeout in seconds */
+	private long timeout;
+	/**
+	 * construct an instance.
+	 * <p>
+	 * @param parent  the parent of this instance.
+	 */
+	public Listener(ProtocolHandler pHandler, long timeoutLength){		
+		this.handler = pHandler;
+		this.timeout = timeoutLength;
+	}
+	/**
+	 * Getter for the {@link eu.mf2c.security.comm.protocol.ProtocolHandler <em>ProtocolHandler</em>} 
+	 * <p>
+	 * @return the {@link eu.mf2c.security.comm.protocol.ProtocolHandler <em>ProtocolHandler</em>} attribute
+	 */
+	public ProtocolHandler getHandler(){
+		return this.handler;
 	}
 	
-	public void poll(){
+	/**
+	 * Send a ping acknowledgement message.
+	 * <p>
+	 * @param msg	the incoming ping request {@link Message <em>Message</em>} object
+	 */
+	private void ackPing(Message msg){
+		try{
+			msg.unpackMsg(); //it is a public msg, no need to verify signature & decrypt payload
+			String target = (String) msg.getPayloadHM().get("source");			
+			Message ackMsg = new Message((HashMap<String, Object>) this.handler.getPingMessage(msg.getPayloadHM().get("timestamp")));
+			msg.packMsg( Security.PUBLIC, this.handler.getProtocol(), QoS.EXACTLYONCE, null);
+			this.handler.publish(this.handler.getPingAckDest(target), QoS.EXACTLYONCE, ackMsg.getPayloadHM());
+			this.lastPing = Instant.now().getEpochSecond();
+		}catch(Exception e){
+			LOGGER.error("Acknowledge ping error: " + e.getMessage() + ".  Bypassing this one.");
+			//we swallow this exception and pass on
+		}
+	}
+	/**
+	 * Process the ping acknowledgement {@link Message <em>Message</em>} objects
+	 * @param msg	the incoming ping acknowledgement {@link Message <em>Message</em>} object
+	 */
+	private void processPingAck(Message msg){
+		//
+		try {
+			msg.unpackMsg();
+			this.lastPingAck = (long) msg.getPayloadHM().get("timestamp");
+			if(this.lastPingAck - (long) msg.getPayloadHM().get("pingRequestTS") > this.timeout ){
+				//what are we going to do??????????????????  
+				LOGGER.warn("ping acknowledgement took longer than the time out value!");
+			}
+		} catch (MessageException e) {
+			// 
+			LOGGER.error("Check ping acknowledgement error: " + e.getMessage() + ".  Bypassing this one.");
+			//we swallow this exception and pass on
+		}
 		
-		//use the protocolhander to get/listen for incoming messages, non-blocking
-		//this is used by the user application via the channel object to determine if the queue has message/s
-		
-		
-		
-		
-		
+	}
+
+	@Override
+	public void run() {
+		//
+		Message pingMsg;
+		while ((pingMsg = this.handler.popPingRequest()) != null){ 
+			this.ackPing(pingMsg);
+			/*  not sure this is legitimate, the pingack may not be mapped t the source pingreq.  Need some other mechanism to determine timeout when the ping target is 
+			 * not responding (not sending packack)
+			if(this.lastPing - this.lastPingAck > this.timeout){
+				LOGGER.warn("Ping acknowledgement took longer than timeout value!");
+			}*/
+		}
+		LOGGER.debug("Current run completing.....");
 	}
 	
 	
