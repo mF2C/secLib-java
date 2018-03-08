@@ -15,9 +15,8 @@
  */
 package eu.mf2c.security.comm;
 
-import java.security.PublicKey;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -172,7 +171,7 @@ public class Channel implements Channelable {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void send(Message message, List<Enum<?>> flags) throws ChannelException {
+	public void send(Message message, Set<Enum<?>> flags) throws ChannelException {
 		//validate 
 		if(message == null || message.getPayloadHM() == null || message.getPayloadHM().isEmpty() ){
 			LOGGER.error("Unable to send message, there is no message or message payload!");
@@ -269,11 +268,11 @@ public class Channel implements Channelable {
 	 * Find the flag according to the provided {@link java.lang.Enum <em>Enum</em>} type
 	 * <p>
 	 * @param clazz	the required {@link java.lang.Enum <em>Enum</em>} type
-	 * @param list	The {@link java.util.List <em>List</em>} to filter 
+	 * @param set	The {@link java.util.Set <em>Set</em>} to filter 
 	 * @return	the retrieved object or null if the type is not found.
 	 */
-	public Enum<?> getFlag(Class<?> clazz, List<Enum<?>> list){
-		return list.stream().filter(e -> clazz.isInstance(e)).findAny().orElse(null);
+	public Enum<?> getFlag(Class<?> clazz, Set<Enum<?>> set){
+		return set.stream().filter(e -> clazz.isInstance(e)).findAny().orElse(null);
 	}
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////

@@ -15,7 +15,7 @@
  */
 package eu.mf2c.security.comm;
 
-import java.util.List;
+import java.util.Set;
 
 import eu.mf2c.security.data.Message;
 import eu.mf2c.security.exception.ChannelException;
@@ -40,12 +40,12 @@ public interface Channelable {
 	 * Send a message
 	 * <p>
 	 * @param message	The {@link Message <em>Message</em>} object
-	 * @param flagHM	A {@link java.util.List <em>List</em>} of  
+	 * @param flagHM	A {@link java.util.Set <em>Set</em>} of  
 	 * 						{@link java.lang.Enum <em>Enum</em>} flags specifying
 	 * 						the security, privacy and quality of service requirements  
 	 * @throws ChannelException	on processing errors
 	 */
-	public void send(Message message, List<Enum<?>> flags) throws ChannelException;
+	public void send(Message message, Set<Enum<?>> flags) throws ChannelException;
 	
 	/** flush the message buffers */
 	public void flush();
