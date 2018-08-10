@@ -4,5 +4,5 @@
 .settings/
 
 # log4j
-#log/
-/bin/
+log/
+bin/

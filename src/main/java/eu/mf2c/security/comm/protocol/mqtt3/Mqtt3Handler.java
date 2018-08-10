@@ -59,7 +59,7 @@ import eu.mf2c.security.exception.ProtocolHandlerException;
  * must set the three message queues to enable call backs.  The handler can be
  * used as both a publisher and subscriber.  Native Mqtt3 capability 
  * for buffering outgoing messages are used here.   
- * <p> * 
+ * <p>
  * @author Shirley Crompton
  * @email  shirley.crompton@stfc.ac.uk
  * @org Data Science and Technology Group,
